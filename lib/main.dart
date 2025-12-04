@@ -1,0 +1,598 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MiroApp());
+}
+
+class MiroApp extends StatelessWidget {
+  const MiroApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "MIRO",
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        primaryColor: const Color(0xFFB6F500),
+        fontFamily: 'Montserrat',
+      ),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+// ---------------- Splash Screen ----------------
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      body: Center(
+        child: Text(
+          "MIRO",
+          style: TextStyle(
+            color: const Color(0xFFB6F500),
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- MainScreen with Bottom Navigation ----------------
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int currentIndex = 0;
+
+  final List<Widget> screens = [
+    const HomeScreen(),
+    const PortfolioScreen(),
+    const TrendingScreen(),
+    const ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: screens[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        selectedItemColor: const Color(0xFFB6F500),
+        unselectedItemColor: Colors.white70,
+        backgroundColor: const Color(0xFF1E1E1E),
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet),
+            label: "Portfolio",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: "Trending",
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
+        onTap: (index) => setState(() => currentIndex = index),
+      ),
+    );
+  }
+}
+
+// ---------------- Home Screen ----------------
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  final List<Map<String, String>> dummyNews = const [
+    {
+      "title": "Bitcoin naik 5% dalam 24 jam terakhir",
+      "summary":
+          "Harga Bitcoin melonjak seiring meningkatnya minat investor institusional.",
+      "time": "1 jam lalu",
+      "sentiment": "Positive",
+    },
+    {
+      "title": "Ethereum anjlok akibat regulasi baru",
+      "summary":
+          "Pemerintah AS mengumumkan regulasi baru yang berdampak negatif ke crypto.",
+      "time": "2 jam lalu",
+      "sentiment": "Negative",
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "MIRO",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF121212),
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
+          children: [
+            // Bitcoin Price Card
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    "Bitcoin Price",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "Rp 987.000.000",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFB6F500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Sentiment Analysis (Dummy)
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Sentiment Analysis",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFF2A2A2A),
+                      hintText: "Input news or comment...",
+                      hintStyle: TextStyle(color: Colors.white70),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB6F500),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text("Analyze Sentiment"),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            const Text(
+              "Crypto News",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            // News List
+            Column(
+              children: dummyNews.map((news) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        news['title']!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        news['summary']!,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            news['time']!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          Text(
+                            news['sentiment']!,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- Portfolio Screen ----------------
+class PortfolioScreen extends StatelessWidget {
+  const PortfolioScreen({super.key});
+
+  final List<Map<String, dynamic>> portfolioAssets = const [
+    {
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "amount": 0.056,
+      "value": 5400000,
+      "color": Colors.orange,
+    },
+    {
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "amount": 0.89,
+      "value": 4300000,
+      "color": Colors.blueAccent,
+    },
+    {
+      "name": "BNB",
+      "symbol": "BNB",
+      "amount": 12,
+      "value": 780000,
+      "color": Colors.yellow,
+    },
+    {
+      "name": "Cardano",
+      "symbol": "ADA",
+      "amount": 500,
+      "value": 750000,
+      "color": Colors.lightBlueAccent,
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    int totalValue = portfolioAssets.fold(
+      0,
+      (sum, asset) => sum + asset['value'] as int,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Portofolio"),
+        backgroundColor: const Color(0xFF121212),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
+          children: [
+            // Total Balance Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Total Balance",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Rp ${totalValue.toString()}",
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFB6F500),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Portfolio Value",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Portfolio Assets
+            const Text(
+              "Your Assets",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: portfolioAssets.map((asset) {
+                double progress = asset['value'] / totalValue;
+
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Coin name + symbol + amount
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${asset['name']} (${asset['symbol']})",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "${asset['amount']} ${asset['symbol']}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      // Coin value
+                      Text(
+                        "Rp ${asset['value'].toString()}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Progress bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          color: asset['color'],
+                          backgroundColor: Colors.white12,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- Trending Coins ----------------
+class TrendingScreen extends StatelessWidget {
+  const TrendingScreen({super.key});
+
+  final List<Map<String, String>> trendingCoins = const [
+    {"name": "Bitcoin", "symbol": "BTC", "price": "Rp 987.000.000"},
+    {"name": "Ethereum", "symbol": "ETH", "price": "Rp 78.000.000"},
+    {"name": "BNB", "symbol": "BNB", "price": "Rp 6.500.000"},
+    {"name": "Cardano", "symbol": "ADA", "price": "Rp 15.000"},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Trending Coins"),
+        backgroundColor: const Color(0xFF121212),
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: trendingCoins.length,
+        itemBuilder: (context, index) {
+          final coin = trendingCoins[index];
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "${coin['name']} (${coin['symbol']})",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  coin['price']!,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFFB6F500),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---------------- Profile Screen ----------------
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Profile"),
+        backgroundColor: const Color(0xFF121212),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Avatar + Name + Email
+          Column(
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: const Color(0xFFB6F500),
+                child: Icon(Icons.person, size: 50, color: Colors.black),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "John Doe",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                "johndoe@email.com",
+                style: TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+
+          // Statistics Cards
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildStatCard("Portfolio", "Rp 11.300.000"),
+              _buildStatCard("Assets", "4 Coins"),
+            ],
+          ),
+          const SizedBox(height: 30),
+
+          // Settings / Menu List
+          _buildMenuItem(Icons.notifications, "Notifications"),
+          _buildMenuItem(Icons.help_outline, "Help & Support"),
+          _buildMenuItem(Icons.logout, "Logout"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFB6F500),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String title) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFFB6F500)),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          color: Colors.white70,
+          size: 16,
+        ),
+        onTap: () {},
+      ),
+    );
+  }
+}
+
