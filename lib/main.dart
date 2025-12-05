@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MiroApp());
@@ -61,6 +63,151 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
+// ---------------- Login Screen ----------------
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Login",
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: _inputDecoration("Email"),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: _inputDecoration("Password"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB6F500),
+                foregroundColor: Colors.black,
+                minimumSize: const Size(double.infinity, 48),
+              ),
+              child: const Text("Login"),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
+              },
+              child: const Text(
+                "Don't have an account? Register",
+                style: TextStyle(color: Color(0xFFB6F500)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: const Color(0xFF1E1E1E),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+    );
+  }
+}
+
+// ---------------- Register Screen ----------------
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Register",
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: _inputDecoration("Email"),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: _inputDecoration("Password"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB6F500),
+                foregroundColor: Colors.black,
+                minimumSize: const Size(double.infinity, 48),
+              ),
+              child: const Text("Register"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: const Color(0xFF1E1E1E),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+    );
+  }
+}
+
 // ---------------- MainScreen with Bottom Navigation ----------------
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -107,11 +254,19 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// ---------------- Home Screen ----------------
-class HomeScreen extends StatelessWidget {
+// ---------------- HomeScreen with Dummy Function (:v hehe) ----------------
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
-  final List<Map<String, String>> dummyNews = const [
+class _HomeScreenState extends State<HomeScreen> {
+  String btcPrice = "Loading...";
+  final TextEditingController _sentimentController = TextEditingController();
+  String _sentimentResult = "";
+
+  final List<Map<String, String>> dummyResult = const [
     {
       "title": "Bitcoin naik 5% dalam 24 jam terakhir",
       "summary":
@@ -127,6 +282,48 @@ class HomeScreen extends StatelessWidget {
       "sentiment": "Negative",
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBitcoinPrice();
+  }
+
+  Future<void> fetchBitcoinPrice() async {
+    final url = Uri.parse(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=idr',
+    );
+    try {
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final price = data['bitcoin']['idr'];
+        setState(() {
+          btcPrice = 'Rp ' + price.toString();
+        });
+      } else {
+        setState(() {
+          btcPrice = 'Error loading price';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        btcPrice = 'Error fetching';
+      });
+    }
+  }
+
+  void _analyzeSentiment() {
+    String text = _sentimentController.text.toLowerCase();
+    if (text.contains("naik")) {
+      _sentimentResult = "Positive";
+    } else if (text.contains("anjlok") || text.contains("turun")) {
+      _sentimentResult = "Negative";
+    } else {
+      _sentimentResult = "Neutral";
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,14 +350,14 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
+                children: [
+                  const Text(
                     "Bitcoin Price",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    "Rp 987.000.000",
-                    style: TextStyle(
+                    btcPrice,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFFB6F500),
@@ -171,7 +368,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Sentiment Analysis (Dummy)
+            // Sentiment Analysis Input
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -187,12 +384,13 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextField(
+                    controller: _sentimentController,
                     maxLines: 2,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color(0xFF2A2A2A),
                       hintText: "Input news or comment...",
-                      hintStyle: TextStyle(color: Colors.white70),
+                      hintStyle: const TextStyle(color: Colors.white70),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -200,7 +398,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _analyzeSentiment,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB6F500),
                       foregroundColor: Colors.black,
@@ -210,20 +408,31 @@ class HomeScreen extends StatelessWidget {
                     ),
                     child: const Text("Analyze Sentiment"),
                   ),
+                  const SizedBox(height: 12),
+                  if (_sentimentResult.isNotEmpty)
+                    Text(
+                      "Result: $_sentimentResult",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFB6F500),
+                      ),
+                    ),
                 ],
               ),
             ),
+
             const SizedBox(height: 20),
 
             const Text(
-              "Crypto News",
+              "Sentiment Result",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
 
-            // News List
+            // Dummy Result
             Column(
-              children: dummyNews.map((news) {
+              children: dummyResult.map((news) {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   padding: const EdgeInsets.all(16),
@@ -252,7 +461,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Text(
                             news['time']!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
                             ),
@@ -490,7 +699,7 @@ class TrendingScreen extends StatelessWidget {
   }
 }
 
-// ---------------- Profile Screen ----------------
+// ---------------- Profile and Logout ----------------
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -504,13 +713,12 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Avatar + Name + Email
           Column(
             children: [
               CircleAvatar(
                 radius: 50,
                 backgroundColor: const Color(0xFFB6F500),
-                child: Icon(Icons.person, size: 50, color: Colors.black),
+                child: const Icon(Icons.person, size: 50, color: Colors.black),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -526,7 +734,6 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Statistics Cards
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -536,10 +743,9 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Settings / Menu List
-          _buildMenuItem(Icons.notifications, "Notifications"),
-          _buildMenuItem(Icons.help_outline, "Help & Support"),
-          _buildMenuItem(Icons.logout, "Logout"),
+          _buildMenuItem(context, Icons.notifications, "Notifications"),
+          _buildMenuItem(context, Icons.help_outline, "Help & Support"),
+          _buildMenuItem(context, Icons.logout, "Logout"),
         ],
       ),
     );
@@ -575,7 +781,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
+  Widget _buildMenuItem(BuildContext context, IconData icon, String title) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -590,9 +796,14 @@ class ProfileScreen extends StatelessWidget {
           color: Colors.white70,
           size: 16,
         ),
-        onTap: () {},
+        onTap: () {
+          // Logout Dummy Testing Route
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => LoginScreen()),
+            (route) => false,
+          );
+        },
       ),
     );
   }
 }
-
